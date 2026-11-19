@@ -18,10 +18,11 @@ quota and account behavior in `CodexUsage.Core` and use a thin GNOME frontend.
   cancel, sign-out, usage dashboard, and preferences. Ensure demo mode never
   starts the helper or touches the live cache. Exercise stop/restart, dropped
   connections, stale data, and missing CLI states.
-- [ ] Package the extension and self-contained helper for per-user install.
+- [x] Package the extension and self-contained helper for per-user install.
   Document requirements, install/uninstall, demo mode, and release checks.
-- [ ] Verify the build and demo on GNOME 50 / Wayland, including enable/disable,
-  keyboard controls, and process cleanup. Record what was exercised.
+- [x] Verify the release archive in an isolated GNOME 50 / Wayland session.
+  Exercise install, enable/disable, demo isolation, helper restart, and uninstall.
+- [ ] Check the panel, keyboard navigation, and scaling on a regular desktop.
 - [ ] Before publishing, compare live buckets, displayed values, and reset times
   with the official usage dashboard. Verify managed login, cancellation and
   shared sign-out with a test account, plus suspend/resume on a real session.

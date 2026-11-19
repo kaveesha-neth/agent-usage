@@ -25,3 +25,26 @@ The automated runner covers quota parsing, null and changed fields, reset timest
 - [ ] Run `--mock` separately and confirm permanent DEMO markings and no live app-server or cache use.
 
 Explorer desktop attachment and taskbar overlay placement depend on Windows shell behavior. Vertical and automatically hidden taskbars are outside the supported taskbar placement mode. The executable is unsigned, and the Codex CLI is a separate prerequisite.
+
+## Linux verification
+
+On Ubuntu 26.04.1 x86-64 with GNOME Shell 50.1 / Wayland:
+
+- The .NET 8 Release helper build succeeded with no warnings or errors. The
+  existing 34 Core checks, Linux helper fake-server checks, and GJS usage and
+  pipe checks passed.
+- An isolated headless Shell enabled the extension in demo mode without writing
+  a live cache, switched to a fake Codex CLI and wrote a quota cache, then
+  disabled the extension and shut down the helper and its subprocess.
+- The self-contained Linux x86-64 archive passed its checksum and fake-server
+  checks. A fresh install from the archive passed demo isolation, recovered
+  after stopping the helper, and uninstalled in the isolated Wayland session.
+
+Still to check on a regular desktop before publishing:
+
+- [ ] Verify the top-bar ring, popover, preferences, keyboard navigation, and
+  display scaling.
+- [ ] Compare a signed-in account's quotas and reset times with the official
+  usage dashboard. Exercise managed sign-in, cancellation, and shared sign-out
+  on a test account.
+- [ ] Verify recovery after screen lock, logout/login, and suspend/resume.

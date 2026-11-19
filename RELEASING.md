@@ -8,3 +8,12 @@ The GitHub repository should contain the source and documentation. Do not add `W
 4. Attach the ZIP to a GitHub Release. Put platform, architecture, version, prerequisite Codex CLI, and any known limitations in the release notes.
 
 The `Windows-x64/` folder in this local workspace is an installed copy for testing. It is intentionally ignored by Git; future source checkouts should build locally or download a release asset.
+
+## Linux x86-64 release
+
+Run `bash Source/scripts/Build-Linux.sh` on the supported Ubuntu / GNOME desktop.
+The script tests and publishes the helper, packs the extension, and writes
+`codex-usage-linux-x64.tar.gz` and `SHA256.txt` to `Source/artifacts/linux-x64/`.
+Verify the checksum, extract the archive into a fresh folder, and follow the
+[Linux install guide](Source/linux/README.md) and [verification checklist](VERIFICATION.md).
+Attach the archive and its checksum to the release after those checks.

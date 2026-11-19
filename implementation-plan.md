@@ -22,6 +22,7 @@ quota and account behavior in `CodexUsage.Core` and use a thin GNOME frontend.
   Document requirements, install/uninstall, demo mode, and release checks.
 - [x] Verify the release archive in an isolated GNOME 50 / Wayland session.
   Exercise install, enable/disable, demo isolation, helper restart, and uninstall.
+- [x] Show matching five-hour (`5h`) and weekly (`W`) meters in the GNOME panel.
 - [ ] Check the panel, keyboard navigation, and scaling on a regular desktop.
 - [ ] Before publishing, compare live buckets, displayed values, and reset times
   with the official usage dashboard. Verify managed login, cancellation and

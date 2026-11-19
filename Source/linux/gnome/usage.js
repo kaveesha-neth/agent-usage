@@ -1,7 +1,10 @@
-export function fiveHourRemaining(snapshot) {
-    const fiveHour = snapshot?.buckets.flatMap(bucket => bucket.windows)
-        .find(window => window.windowDurationMins === 300);
-    return fiveHour?.remainingPercent ?? null;
+export function remainingForWindow(snapshot, durationMins) {
+    for (const bucket of snapshot?.buckets ?? []) {
+        const window = bucket.windows.find(item => item.windowDurationMins === durationMins);
+        if (window)
+            return window.remainingPercent ?? null;
+    }
+    return null;
 }
 
 export function isStale(view, now) {

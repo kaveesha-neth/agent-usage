@@ -10,21 +10,33 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {HelperClient} from './helper.js';
-import {countdown, fiveHourRemaining, isStale, makeDemo, percent, resetLabel} from './usage.js';
+import {countdown, isStale, makeDemo, percent, remainingForWindow, resetLabel} from './usage.js';
 
 const usageDashboard = 'https://chatgpt.com/codex/settings/usage';
+const panelWindows = [
+    {label: '5h', name: 'Five-hour', minutes: 300},
+    {label: 'W', name: 'Weekly', minutes: 10080},
+];
 
 export default class CodexUsageExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._button = new PanelMenu.Button(0.0, 'Codex Usage');
         const panel = new St.BoxLayout({style_class: 'codex-usage-indicator'});
-        this._ring = new St.DrawingArea({style_class: 'codex-usage-ring',
-            y_align: Clutter.ActorAlign.CENTER});
-        this._ring.connect('repaint', () => this._drawRing());
-        this._percent = new St.Label({y_align: Clutter.ActorAlign.CENTER});
-        panel.add_child(this._ring);
-        panel.add_child(this._percent);
+        this._demoLabel = new St.Label({text: 'DEMO', y_align: Clutter.ActorAlign.CENTER});
+        panel.add_child(this._demoLabel);
+        this._meters = panelWindows.map(window => {
+            const group = new St.BoxLayout({style_class: 'codex-usage-meter'});
+            const ring = new St.DrawingArea({style_class: 'codex-usage-ring',
+                y_align: Clutter.ActorAlign.CENTER});
+            const value = new St.Label({y_align: Clutter.ActorAlign.CENTER});
+            const meter = {...window, ring, value, remaining: null};
+            ring.connect('repaint', () => this._drawRing(meter));
+            group.add_child(ring);
+            group.add_child(value);
+            panel.add_child(group);
+            return meter;
+        });
         this._button.add_child(panel);
 
         const detailsItem = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
@@ -69,7 +81,8 @@ export default class CodexUsageExtension extends Extension {
         this._settings.disconnect(this._settingsChanged);
         this._settings = null;
         this._button?.destroy();
-        this._button = this._details = this._ring = this._percent = null;
+        this._button = this._details = this._meters = this._demoLabel = null;
+        this._stale = null;
         this._status = this._errorLabel = this._view = this._countdowns = null;
         this._signIn = this._cancelSignIn = this._signOut = null;
     }
@@ -207,6 +220,12 @@ export default class CodexUsageExtension extends Extension {
 
     _render(view) {
         this._view = view;
+        this._demoLabel.visible = Boolean(view.demo);
+        for (const meter of this._meters) {
+            meter.remaining = remainingForWindow(view.snapshot, meter.minutes);
+            meter.value.text = `${meter.label} ${percent(meter.remaining)}`;
+            meter.ring.queue_repaint();
+        }
         this._details.destroy_all_children();
         this._countdowns = [];
         this._addLabel(view.demo ? 'Codex Usage · DEMO' : 'Codex Usage', 'codex-usage-heading');
@@ -242,20 +261,22 @@ export default class CodexUsageExtension extends Extension {
 
     _tick() {
         const now = Date.now();
-        const remaining = fiveHourRemaining(this._view.snapshot);
         const stale = isStale(this._view, now);
-        const text = `${this._demo ? 'DEMO ' : ''}${percent(remaining)}`;
-        if (this._percent.text !== text || this._stale !== stale) {
-            this._percent.text = text;
+        if (this._stale !== stale) {
             this._stale = stale;
-            this._button.accessible_name = remaining === null ? 'Codex Usage: quota unavailable' :
-                `Codex Usage: ${text} remaining${stale ? ', stale' : ''}`;
             if (stale)
                 this._button.add_style_class_name('codex-usage-stale');
             else
                 this._button.remove_style_class_name('codex-usage-stale');
-            this._ring.queue_repaint();
+            for (const meter of this._meters)
+                meter.ring.queue_repaint();
         }
+        const quotas = this._meters.map(({name, remaining}) => remaining === null ?
+            `${name} quota unavailable` : `${name} quota ${percent(remaining)} remaining`);
+        const accessibleName = ['Codex Usage', this._demo && 'Demo', ...quotas, stale && 'Stale']
+            .filter(Boolean).join(', ');
+        if (this._button.accessible_name !== accessibleName)
+            this._button.accessible_name = accessibleName;
         for (const {label, resetsAt} of this._countdowns)
             label.text = countdown(resetsAt, now);
         const fetchedAt = this._view.snapshot?.fetchedAt;
@@ -263,10 +284,10 @@ export default class CodexUsageExtension extends Extension {
         this._status.text = `${stale ? 'Stale · ' : ''}${this._view.connection}${updated}`;
     }
 
-    _drawRing() {
-        const cr = this._ring.get_context();
+    _drawRing({ring, remaining}) {
+        const cr = ring.get_context();
         try {
-            const [width, height] = this._ring.get_surface_size();
+            const [width, height] = ring.get_surface_size();
             const radius = Math.max(0, Math.min(width, height) * 0.38);
             const start = -Math.PI / 2;
             cr.setLineWidth(Math.max(1, radius * 0.3));
@@ -274,7 +295,6 @@ export default class CodexUsageExtension extends Extension {
             cr.arc(width / 2, height / 2, radius, start, start + 2 * Math.PI);
             cr.stroke();
 
-            const remaining = fiveHourRemaining(this._view?.snapshot);
             const portion = Math.max(0, Math.min(100, remaining ?? 0)) / 100;
             if (portion > 0) {
                 cr.setSourceRGBA(0.34, 0.76, 0.60, this._stale ? 0.5 : 1);

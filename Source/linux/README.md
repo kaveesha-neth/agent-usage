@@ -1,9 +1,10 @@
 # Codex Usage for Linux
 
-Codex Usage puts a five-hour quota ring and percentage in the GNOME top bar.
-Click it to see all reported quota windows, local reset times, countdowns, and
-connection status. The ring shows a dash when the CLI supplies no usable
-300-minute window. Stale data is marked in the panel and details.
+Codex Usage puts two matching quota rings and percentages in the GNOME top
+bar. `5h` shows the first reported five-hour window and `W` shows the first
+reported weekly window. An unavailable window shows a dash in its own slot.
+Click the indicator to see all reported quota windows, local reset times,
+countdowns, and connection status. Stale data is marked in the panel and details.
 
 ## Requirements
 

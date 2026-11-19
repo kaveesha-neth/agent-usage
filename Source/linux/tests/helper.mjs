@@ -15,10 +15,12 @@ try {
     await chmod(fake, 0o700);
     await run(fake, 'https://auth.openai.com/authorize', async (child, next) => {
         const connected = message => message.type === 'view' && message.view.connection === 'Connected';
-        const remaining = message => message.view.snapshot.buckets[0].windows[0].remainingPercent;
-        assert.equal(remaining(await next(connected)), 62.5);
+        const windows = message => message.view.snapshot.buckets[0].windows;
+        const first = windows(await next(connected));
+        assert.deepEqual(first.map(window => [window.windowDurationMins, window.remainingPercent]),
+            [[300, 62.5], [10080, 84]]);
         child.stdin.write('refresh\n');
-        assert.equal(remaining(await next(connected)), 61.5);
+        assert.equal(windows(await next(connected))[0].remainingPercent, 61.5);
         const data = await readFile(cache, 'utf8');
         assert.match(JSON.parse(data).AccountKey, /^[0-9A-F]{64}$/);
         assert.ok(!data.includes('synthetic@example.invalid'));

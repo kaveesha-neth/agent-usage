@@ -20,9 +20,10 @@ for await (const line of createInterface({input: process.stdin})) {
         result = {account};
         break;
     case 'account/rateLimits/read':
-        result = {rateLimitsByLimitId: {codex: {primary: {
-            usedPercent: 37.5 + reads++, windowDurationMins: 300, resetsAt: 4102444800,
-        }}}};
+        result = {rateLimitsByLimitId: {codex: {
+            primary: {usedPercent: 37.5 + reads++, windowDurationMins: 300, resetsAt: 4102444800},
+            secondary: {usedPercent: 16, windowDurationMins: 10080, resetsAt: 4102444800},
+        }}};
         break;
     case 'account/login/start':
         if (params.type !== 'chatgpt')

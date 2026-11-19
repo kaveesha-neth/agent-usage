@@ -7,7 +7,7 @@ quota and account behavior in `CodexUsage.Core` and use a thin GNOME frontend.
 ## Task list
 
 - [x] Record the scope, workflow, and acceptance checks in this plan.
-- [ ] Build a GNOME panel indicator with synthetic data. Show the first
+- [x] Build a GNOME panel indicator with synthetic data. Show the first
   300-minute window as a ring and percentage, and provide a keyboard-accessible
   details menu with all buckets, reset times, countdowns, and connection status.
 - [ ] Add a Linux helper that references `CodexUsage.Core`. Resolve the Codex CLI

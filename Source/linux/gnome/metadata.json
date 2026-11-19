@@ -1,0 +1,6 @@
+{
+  "uuid": "codex-usage@agent-usage",
+  "name": "Codex Usage",
+  "description": "Managed ChatGPT Codex quota in the GNOME top bar.",
+  "shell-version": ["50"]
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.codex-usage" path="/org/gnome/shell/extensions/codex-usage/">
+    <key name="demo-mode" type="b">
+      <default>false</default>
+      <summary>Show synthetic quota</summary>
+    </key>
+    <key name="codex-path" type="s">
+      <default>''</default>
+      <summary>Absolute Codex CLI path, or empty for automatic discovery</summary>
+    </key>
+  </schema>
+</schemalist>

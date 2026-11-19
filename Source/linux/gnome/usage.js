@@ -5,7 +5,7 @@ export function fiveHourRemaining(snapshot) {
 }
 
 export function isStale(view, now) {
-    return view.snapshot !== null &&
+    return !view.demo && view.snapshot !== null &&
         (view.stale || now - Date.parse(view.snapshot.fetchedAt) > 6 * 60 * 1000);
 }
 
@@ -43,7 +43,7 @@ export function countdown(resetsAt, now) {
 export function makeDemo(now = Date.now()) {
     const seconds = Math.floor(now / 1000);
     return {
-        connection: 'DEMO', stale: false, detail: 'Synthetic data',
+        demo: true, connection: 'DEMO', stale: false, detail: 'Synthetic data',
         snapshot: {
             fetchedAt: new Date(now).toISOString(),
             buckets: [

@@ -17,5 +17,7 @@ check(percent(null) === '—' && percent(0) === '0%', 'Distinguish missing and z
 check(resetLabel(null) === 'Reset time unavailable', 'Handle an unknown reset time');
 check(countdown(first.resetsAt, now) === 'in 2h 0m 0s', 'Show time until reset');
 check(countdown(first.resetsAt, first.resetsAt * 1000) === 'Refreshing…', 'Wait for a real refresh');
-check(!isStale(view, now + 360_000) && isStale(view, now + 360_001), 'Apply six-minute freshness');
+const live = {...view, demo: false};
+check(!isStale(live, now + 360_000) && isStale(live, now + 360_001), 'Apply six-minute freshness');
+check(!isStale(view, now + 360_001), 'Keep demo data visibly synthetic instead of stale');
 print('GNOME usage checks passed');

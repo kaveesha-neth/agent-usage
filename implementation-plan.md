@@ -14,7 +14,7 @@ quota and account behavior in `CodexUsage.Core` and use a thin GNOME frontend.
   from the configured path, session PATH, or known user install locations. Use
   the user's XDG cache directory and a private JSON-lines connection to GNOME.
   Test the helper with a fake Codex subprocess.
-- [ ] Wire the panel to the helper. Add refresh, validated browser sign-in,
+- [x] Wire the panel to the helper. Add refresh, validated browser sign-in,
   cancel, sign-out, usage dashboard, and preferences. Ensure demo mode never
   starts the helper or touches the live cache. Exercise stop/restart, dropped
   connections, stale data, and missing CLI states.

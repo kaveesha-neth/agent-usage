@@ -7,6 +7,10 @@
     height: 1em;
 }
 
+.codex-usage-stale StLabel {
+    color: #b0b0b0;
+}
+
 .codex-usage-scroll {
     max-height: 25em;
 }

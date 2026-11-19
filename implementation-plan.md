@@ -10,7 +10,7 @@ quota and account behavior in `CodexUsage.Core` and use a thin GNOME frontend.
 - [x] Build a GNOME panel indicator with synthetic data. Show the first
   300-minute window as a ring and percentage, and provide a keyboard-accessible
   details menu with all buckets, reset times, countdowns, and connection status.
-- [ ] Add a Linux helper that references `CodexUsage.Core`. Resolve the Codex CLI
+- [x] Add a Linux helper that references `CodexUsage.Core`. Resolve the Codex CLI
   from the configured path, session PATH, or known user install locations. Use
   the user's XDG cache directory and a private JSON-lines connection to GNOME.
   Test the helper with a fake Codex subprocess.

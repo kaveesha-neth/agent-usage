@@ -1,6 +1,8 @@
 # Codex Usage Widget
 
-An unofficial Windows desktop and taskbar widget for managed ChatGPT Codex quota. It reads quota data from a local `codex app-server` process; it does not send model requests or estimate message counts.
+An unofficial Windows desktop/taskbar widget and Linux GNOME top-bar extension for managed ChatGPT Codex quota. Both read quota data from a local `codex app-server` process; neither sends model requests or estimates message counts.
+
+For Ubuntu 26.04 / GNOME Shell 50, see the [Linux install and build guide](Source/linux/README.md). The instructions below cover Windows.
 
 ## Requirements
 

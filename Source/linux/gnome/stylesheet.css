@@ -1,0 +1,34 @@
+.codex-usage-indicator {
+    spacing: 0.4em;
+}
+
+.codex-usage-ring {
+    width: 1em;
+    height: 1em;
+}
+
+.codex-usage-stale StLabel {
+    color: #b0b0b0;
+}
+
+.codex-usage-scroll {
+    max-height: 25em;
+}
+
+.codex-usage-details {
+    spacing: 0.3em;
+    min-width: 19em;
+}
+
+.codex-usage-heading,
+.codex-usage-bucket {
+    font-weight: bold;
+}
+
+.codex-usage-bucket {
+    padding-top: 0.45em;
+}
+
+.codex-usage-secondary {
+    font-size: 0.9em;
+}

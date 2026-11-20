@@ -9,21 +9,36 @@ trap 'rm -r -- "$stage"' EXIT
 bundle="$stage/codex-usage-linux-x64"
 mkdir -p -- "$bundle/Notices" "$output"
 
-dotnet run --project "$source_dir/tests/CodexUsage.Tests" -c Release
+if [[ $(uname -sm) != 'Linux x86_64' ]]; then
+    printf 'Build and verify this release on x86-64 Linux.\n' >&2
+    exit 1
+fi
 gjs -m "$source_dir/linux/tests/usage.js"
 gjs -m "$source_dir/linux/tests/transport.js"
 glib-compile-schemas --strict --dry-run "$source_dir/linux/gnome/schemas"
-dotnet publish "$source_dir/src/CodexUsage.Linux" -c Release -r linux-x64 \
-    --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
-    -o "$stage/publish"
-node "$source_dir/linux/tests/helper.mjs" "$stage/publish/codex-usage-helper"
+(
+    cd -- "$source_dir/linux/helper"
+    export CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOAMD64=v1 GOTOOLCHAIN=local
+    go test ./...
+    go build -trimpath -ldflags='-s -w' -o "$bundle/codex-usage-helper" .
+)
+node "$source_dir/linux/tests/helper.mjs" "$bundle/codex-usage-helper"
+
+go_root=$(GOTOOLCHAIN=local go env GOROOT)
+if [[ -f "$go_root/LICENSE" ]]; then
+    install -m 644 -- "$go_root/LICENSE" "$bundle/Notices/GO-LICENSE.txt"
+    install -m 644 -- "$go_root/PATENTS" "$bundle/Notices/GO-PATENTS.txt"
+else
+    # Debian and Ubuntu put Go's license and third-party notices under share/doc.
+    go_notices="$go_root/../../share/doc/golang-${go_root##*go-}-src/copyright"
+    install -m 644 -- "$go_notices" "$bundle/Notices/GO-COPYRIGHT.txt"
+fi
 
 gnome-extensions pack --extra-source=usage.js --extra-source=helper.js \
     --schema=schemas/org.gnome.shell.extensions.codex-usage.gschema.xml \
     --out-dir="$bundle" "$source_dir/linux/gnome"
-install -m 755 -- "$stage/publish/codex-usage-helper" "$bundle/"
-install -m 644 -- "$source_dir/linux/install.sh" "$source_dir/linux/README.md" "$repo_dir/LICENSE" "$bundle/"
-install -m 644 -- "$repo_dir/Notices/DOTNET-LICENSE.txt" "$repo_dir/Notices/DOTNET-THIRD-PARTY-NOTICES.txt" "$bundle/Notices/"
+install -m 755 -- "$source_dir/linux/install.sh" "$bundle/"
+install -m 644 -- "$source_dir/linux/README.md" "$repo_dir/LICENSE" "$bundle/"
 
 tar -czf "$stage/codex-usage-linux-x64.tar.gz" -C "$stage" codex-usage-linux-x64
 mv -- "$stage/codex-usage-linux-x64.tar.gz" "$output/"

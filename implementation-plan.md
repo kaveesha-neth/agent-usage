@@ -32,7 +32,7 @@ scope for this migration.
 - [x] Switch release packaging to Go, remove the Linux-only C# helper, and make
   one per-user install command sufficient when the session supports it. No SDK,
   development runtime, or `sudo` should be required on the target desktop.
-- [ ] Test the new archive and install, upgrade, and uninstall in an isolated
+- [x] Test the new archive and install, upgrade, and uninstall in an isolated
   GNOME session; record what still requires a visible desktop or live account.
 - [ ] Check the panel, keyboard navigation, and scaling on a regular desktop.
 - [ ] Before publishing, compare live buckets, displayed values, and reset times

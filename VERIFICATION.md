@@ -30,19 +30,23 @@ Explorer desktop attachment and taskbar overlay placement depend on Windows shel
 
 On Ubuntu 26.04.1 x86-64 with GNOME Shell 50.1 / Wayland:
 
-- The .NET 8 Release helper build succeeded with no warnings or errors. The
-  existing 34 Core checks, Linux helper fake-server checks, and GJS usage and
-  pipe checks passed.
-- An isolated headless Shell enabled the extension in demo mode without writing
-  a live cache, switched to a fake Codex CLI and wrote a quota cache, then
-  disabled the extension and shut down the helper and its subprocess.
-- The self-contained Linux x86-64 archive passed its checksum and fake-server
-  checks. A fresh install from the archive passed demo isolation, recovered
-  after stopping the helper, and uninstalled in the isolated Wayland session.
+- Go 1.26.8 built a statically linked x86-64 helper. Go tests (including the
+  race detector), the helper fake-server integration, and GJS usage and pipe
+  checks passed. These covered timeouts, malformed and oversized frames,
+  account changes, URL validation, and cleanup of a hung Codex subprocess.
+- The archive passed its SHA-256 check and measured about 1.2 MB, down from
+  the previous 29 MB self-contained .NET archive on this machine.
+- `bash Source/scripts/Test-Linux-Shell.sh` passed using a temporary home and
+  a separate D-Bus and Wayland session. It verified one-command install,
+  activation after restarting Shell, demo mode without live-cache writes,
+  both quota windows using a fake CLI, helper restart, upgrade, and uninstall
+  including removal of the activation entry and shutdown of the helper.
+- The bundle also reached **Sign in required** with official Codex CLI 0.170.0
+  and an empty `CODEX_HOME`; no live account was used for that check.
 
 Still to check on a regular desktop before publishing:
 
-- [ ] Verify the top-bar ring, popover, preferences, keyboard navigation, and
+- [ ] Verify the top-bar rings, popover, preferences, keyboard navigation, and
   display scaling.
 - [ ] Compare a signed-in account's quotas and reset times with the official
   usage dashboard. Exercise managed sign-in, cancellation, and shared sign-out

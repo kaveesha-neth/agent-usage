@@ -34,6 +34,8 @@ scope for this migration.
   development runtime, or `sudo` should be required on the target desktop.
 - [x] Test the new archive and install, upgrade, and uninstall in an isolated
   GNOME session; record what still requires a visible desktop or live account.
+- [x] Redesign the GNOME popover with linear quota bars, reset times and
+  countdowns grouped by window, and account actions shown only when relevant.
 - [ ] Check the panel, keyboard navigation, and scaling on a regular desktop.
 - [ ] Before publishing, compare live buckets, displayed values, and reset times
   with the official usage dashboard. Verify managed login, cancellation and

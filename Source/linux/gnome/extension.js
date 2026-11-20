@@ -5,18 +5,40 @@ import Pango from 'gi://Pango';
 import St from 'gi://St';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {BarLevel} from 'resource:///org/gnome/shell/ui/barLevel.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {HelperClient, IncompatibleHelper} from './helper.js';
-import {countdown, isStale, makeDemo, percent, remainingForWindow, resetLabel} from './usage.js';
+import {accountAction, countdown, isStale, makeDemo, panelWindows, percent,
+    quotaLevel, quotaSections, remainingForWindow, resetLabel} from './usage.js';
 
 const usageDashboard = 'https://chatgpt.com/codex/settings/usage';
-const panelWindows = [
-    {label: '5h', name: 'Five-hour', minutes: 300},
-    {label: 'W', name: 'Weekly', minutes: 10080},
-];
+const updatedTime = new Intl.DateTimeFormat(undefined, {hour: 'numeric', minute: '2-digit'});
+
+function box(parent, styleClass, orientation = Clutter.Orientation.VERTICAL) {
+    const actor = new St.BoxLayout({style_class: styleClass, orientation, x_expand: true});
+    parent.add_child(actor);
+    return actor;
+}
+
+function label(parent, text, styleClass, options = {}) {
+    const opacity = ['codex-usage-secondary', 'codex-usage-bucket'].includes(styleClass) ? 215 : 255;
+    const actor = new St.Label({text, style_class: styleClass, opacity, ...options});
+    actor.clutter_text.line_wrap = true;
+    actor.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
+    parent.add_child(actor);
+    return actor;
+}
+
+function staticItem(menu, styleClass) {
+    const item = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false,
+        style_class: styleClass});
+    item.add_style_class_name('codex-usage-static');
+    menu.addMenuItem(item);
+    return item;
+}
 
 export default class CodexUsageExtension extends Extension {
     enable() {
@@ -39,7 +61,14 @@ export default class CodexUsageExtension extends Extension {
         });
         this._button.add_child(panel);
 
-        const detailsItem = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
+        const menu = this._button.menu;
+        const heading = box(staticItem(menu, 'codex-usage-header'), 'codex-usage-heading-group');
+        const titleRow = box(heading, 'codex-usage-title-row', Clutter.Orientation.HORIZONTAL);
+        label(titleRow, 'Codex Usage', 'codex-usage-heading', {x_expand: true});
+        this._demoBadge = label(titleRow, 'DEMO', 'codex-usage-demo-badge', {y_align: Clutter.ActorAlign.CENTER});
+        this._status = label(heading, '', 'codex-usage-secondary');
+
+        const detailsItem = staticItem(menu, 'codex-usage-content');
         const scroll = new St.ScrollView({style_class: 'codex-usage-scroll',
             x_expand: true, reactive: true, overlay_scrollbars: true,
             hscrollbar_policy: St.PolicyType.NEVER});
@@ -47,14 +76,19 @@ export default class CodexUsageExtension extends Extension {
             style_class: 'codex-usage-details'});
         scroll.set_child(this._details);
         detailsItem.add_child(scroll);
-        this._button.menu.addMenuItem(detailsItem);
-        this._button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        this._button.menu.addAction('Refresh', () => this._refresh());
-        this._signIn = this._button.menu.addAction('Sign in with ChatGPT', () => this._send('sign-in'));
-        this._cancelSignIn = this._button.menu.addAction('Cancel sign-in', () => this._send('cancel-sign-in'));
-        this._signOut = this._button.menu.addAction('Sign out of shared Codex session', () => this._send('sign-out'));
-        this._button.menu.addAction('Open usage dashboard', () => this._openUrl(usageDashboard));
-        this._button.menu.addAction('Preferences', () => this.openPreferences());
+        this._notice = staticItem(menu, 'codex-usage-notice');
+        this._errorLabel = label(this._notice, '', 'codex-usage-error', {x_expand: true});
+        menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this._signIn = menu.addAction('Sign in with ChatGPT', () => this._send('sign-in'), 'avatar-default-symbolic');
+        this._cancelSignIn = menu.addAction('Cancel sign-in', () => this._send('cancel-sign-in'), 'process-stop-symbolic');
+        menu.addAction('Refresh', () => this._refresh(), 'view-refresh-symbolic');
+        menu.addAction('Usage dashboard', () => this._openUrl(usageDashboard), 'web-browser-symbolic');
+        menu.addAction('Preferences', () => this.openPreferences(), 'preferences-system-symbolic');
+        this._account = new PopupMenu.PopupSubMenuMenuItem('Account', true);
+        this._account.icon.icon_name = 'avatar-default-symbolic';
+        menu.addMenuItem(this._account);
+        this._signOut = this._account.menu.addAction('Sign out of shared Codex session',
+            () => this._send('sign-out'), 'system-log-out-symbolic');
         Main.panel.addToStatusArea(this.uuid, this._button);
 
         this._settingsChanged = this._settings.connect('changed', () => this._switchMode());
@@ -83,8 +117,8 @@ export default class CodexUsageExtension extends Extension {
         this._button?.destroy();
         this._button = this._details = this._meters = this._demoLabel = null;
         this._stale = null;
-        this._status = this._errorLabel = this._view = this._countdowns = null;
-        this._signIn = this._cancelSignIn = this._signOut = null;
+        this._status = this._notice = this._errorLabel = this._view = this._countdowns = this._demoBadge = null;
+        this._signIn = this._cancelSignIn = this._signOut = this._account = null;
     }
 
     _switchMode() {
@@ -207,13 +241,15 @@ export default class CodexUsageExtension extends Extension {
 
     _updateActions() {
         const available = Boolean(this._client?.ready) && !this._busy;
-        const signingIn = this._view?.connection === 'Signing in';
-        for (const item of [this._signIn, this._cancelSignIn, this._signOut])
-            item.actor.visible = !this._demo;
-        this._signIn.setSensitive(available && !signingIn);
-        this._cancelSignIn.setSensitive(available && signingIn);
-        this._signOut.setSensitive(available && !signingIn &&
-            (this._view?.connection === 'Connected' || this._view?.plan != null));
+        const action = accountAction(this._view);
+        this._signIn.visible = action === 'sign-in';
+        this._cancelSignIn.visible = action === 'cancel';
+        this._account.visible = action === 'manage';
+        this._signIn.setSensitive(available);
+        this._cancelSignIn.setSensitive(available);
+        this._signOut.setSensitive(available);
+        if (!this._account.visible)
+            this._account.setSubmenuShown(false);
     }
 
     _openUrl(url) {
@@ -227,12 +263,13 @@ export default class CodexUsageExtension extends Extension {
     _showError(message) {
         this._error = message;
         this._errorLabel.text = message ?? '';
-        this._errorLabel.visible = message !== null;
+        this._notice.visible = message !== null;
     }
 
     _render(view) {
         this._view = view;
         this._demoLabel.visible = Boolean(view.demo);
+        this._demoBadge.visible = Boolean(view.demo);
         for (const meter of this._meters) {
             meter.remaining = remainingForWindow(view.snapshot, meter.minutes);
             meter.value.text = `${meter.label} ${percent(meter.remaining)}`;
@@ -240,35 +277,41 @@ export default class CodexUsageExtension extends Extension {
         }
         this._details.destroy_all_children();
         this._countdowns = [];
-        this._addLabel(view.demo ? 'Codex Usage · DEMO' : 'Codex Usage', 'codex-usage-heading');
-        if (!view.snapshot?.buckets.length)
-            this._addLabel(view.detail, 'codex-usage-secondary');
-        for (const bucket of view.snapshot?.buckets ?? []) {
-            this._addLabel(bucket.name, 'codex-usage-bucket');
-            if (bucket.windows.length === 0)
-                this._addLabel('Quota windows unavailable');
-            for (const window of bucket.windows) {
-                const remaining = window.remainingPercent === null ? 'Quota unavailable' :
-                    `${percent(window.remainingPercent)} remaining`;
-                this._addLabel(`${window.durationLabel} · ${remaining}`);
-                this._addLabel(resetLabel(window.resetsAt), 'codex-usage-secondary');
-                const label = this._addLabel('', 'codex-usage-secondary');
-                this._countdowns.push({label, resetsAt: window.resetsAt});
-            }
+        const sections = quotaSections(view.snapshot);
+        if (sections.length === 0 || (view.connection !== 'Connected' && !view.demo))
+            label(this._details, view.detail, 'codex-usage-secondary');
+        for (const {title, rows, main} of sections) {
+            const section = box(this._details, 'codex-usage-quota-section');
+            if (!main || sections.length > 1)
+                label(section, title, 'codex-usage-bucket');
+            if (rows.length === 0)
+                label(section, 'No quota windows reported', 'codex-usage-secondary');
+            for (const row of rows)
+                this._addQuotaRow(section, row);
         }
-        this._status = this._addLabel('', 'codex-usage-secondary');
-        this._errorLabel = this._addLabel('', 'codex-usage-secondary');
         this._showError(this._error ?? null);
         this._updateActions();
         this._tick();
     }
 
-    _addLabel(text, styleClass = '') {
-        const label = new St.Label({text, style_class: styleClass});
-        label.clutter_text.line_wrap = true;
-        label.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
-        this._details.add_child(label);
-        return label;
+    _addQuotaRow(section, {title, remainingPercent, resetsAt}) {
+        const level = quotaLevel(remainingPercent);
+        const row = box(section, 'codex-usage-quota-card');
+        const heading = box(row, 'codex-usage-quota-heading', Clutter.Orientation.HORIZONTAL);
+        label(heading, title, 'codex-usage-quota-title', {x_expand: true, y_align: Clutter.ActorAlign.CENTER});
+        label(heading, remainingPercent === null ? 'Unavailable' : `${percent(remainingPercent)} left`,
+            `codex-usage-quota-value codex-usage-value-${level}`, {y_align: Clutter.ActorAlign.CENTER});
+
+        if (remainingPercent !== null) {
+            row.add_child(new BarLevel({style_class: `codex-usage-progress codex-usage-progress-${level}`,
+                value: remainingPercent / 100, x_expand: true, accessible_name: `${title}, quota remaining`}));
+        }
+        const timing = box(row, 'codex-usage-timing', Clutter.Orientation.HORIZONTAL);
+        label(timing, resetLabel(resetsAt), 'codex-usage-secondary', {x_expand: true});
+        if (resetsAt !== null) {
+            const clock = label(timing, '', 'codex-usage-countdown');
+            this._countdowns.push({label: clock, resetsAt});
+        }
     }
 
     _tick() {
@@ -292,8 +335,9 @@ export default class CodexUsageExtension extends Extension {
         for (const {label, resetsAt} of this._countdowns)
             label.text = countdown(resetsAt, now);
         const fetchedAt = this._view.snapshot?.fetchedAt;
-        const updated = fetchedAt ? ` · Updated ${new Date(fetchedAt).toLocaleTimeString()}` : '';
-        this._status.text = `${stale ? 'Stale · ' : ''}${this._view.connection}${updated}`;
+        const updated = fetchedAt ? ` · Updated ${updatedTime.format(new Date(fetchedAt))}` : '';
+        this._status.text = this._view.demo ? 'Sample quota data' :
+            `${stale ? 'Stale · ' : ''}${this._view.connection}${updated}`;
     }
 
     _drawRing({ring, remaining}) {

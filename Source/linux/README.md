@@ -4,8 +4,9 @@ Codex Usage puts two matching quota rings and percentages in the GNOME top
 bar. `5h` and `W` show the five-hour and weekly windows from the main Codex
 quota bucket. An unavailable window shows a dash; another bucket's quota is
 never substituted for it.
-Click the indicator to see all reported quota windows, local reset times,
-countdowns, and connection status. Stale data is marked in the panel and details.
+Click the indicator to see linear bars for the quota remaining in each window,
+along with local reset times and live countdowns. An unavailable quota is
+labeled and has no bar. Stale data is marked in the panel and details.
 
 ## Requirements
 
@@ -33,8 +34,8 @@ set its absolute executable path and apply it. Detection checks the graphical
 session's `PATH`, `~/.local/bin`, and `~/.cargo/bin`. Enable **Demo mode** in
 Preferences to try the indicator using synthetic data.
 
-Refresh, browser sign-in, cancel, and sign-out are available from the panel
-menu. **Sign out of shared Codex session** also affects the CLI and other
+Refresh is available from the panel menu. Sign-in and cancel appear when
+relevant. **Account → Sign out of shared Codex session** also affects the CLI and other
 clients using that account. API-key login uses separate billing.
 
 The helper reads usage through the local CLI. The widget keeps a sanitized

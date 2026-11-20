@@ -6,6 +6,7 @@ if (process.argv.slice(2).join(' ') !== 'app-server')
     throw new Error('Unexpected executable arguments');
 const mode = process.env.FAKE_MODE;
 const send = value => console.log(JSON.stringify(value));
+const now = Math.floor(Date.now() / 1000);
 let initialized = false;
 let account = {type: 'chatgpt', planType: 'plus', email: 'synthetic@example.invalid'};
 let reads = 0;
@@ -40,8 +41,8 @@ for await (const line of createInterface({input: process.stdin})) {
             break;
         }
         result = {rateLimitsByLimitId: {codex: {
-            primary: {usedPercent: 37.5 + reads++, windowDurationMins: 300, resetsAt: 4102444800},
-            secondary: {usedPercent: 16, windowDurationMins: 10080, resetsAt: 4102444800},
+            primary: {usedPercent: 37.5 + reads++, windowDurationMins: 300, resetsAt: now + 2 * 3600},
+            secondary: {usedPercent: 16, windowDurationMins: 10080, resetsAt: now + 6 * 86400 + 5 * 3600},
         }}};
         break;
     case 'account/login/start':

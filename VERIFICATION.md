@@ -41,6 +41,9 @@ On Ubuntu 26.04.1 x86-64 with GNOME Shell 50.1 / Wayland:
   activation after restarting Shell, demo mode without live-cache writes,
   both quota windows using a fake CLI, helper restart, upgrade, and uninstall
   including removal of the activation entry and shutdown of the helper.
+- The smoke test opens the quota popover and checks the layout and values of
+  both linear bars in demo and fake-account modes, the unavailable state,
+  and the connected Account submenu.
 - The bundle also reached **Sign in required** with official Codex CLI 0.170.0
   and an empty `CODEX_HOME`; no live account was used for that check.
 

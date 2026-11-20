@@ -66,7 +66,8 @@ wait_for() {
 }
 
 start_shell() {
-    gnome-shell --headless --wayland --no-x11 --virtual-monitor=1280x720 >>"$stage/gnome-shell.log" 2>&1 &
+    CODEX_USAGE_SMOKE_STAGE="$stage" gnome-shell --headless --wayland --no-x11 \
+        --virtual-monitor=1280x720 "$@" >>"$stage/gnome-shell.log" 2>&1 &
     shell_pid=$!
     wait_for shell_ready
 }
@@ -89,8 +90,9 @@ gsettings get org.gnome.shell enabled-extensions | grep -Fq "'$uuid'"
 test -x "$helper"
 gsettings --schemadir "$installed/schemas" set "$schema" demo-mode true
 stop_shell
-start_shell
+start_shell --automation-script "$(dirname -- "$script")/../linux/tests/popover.js"
 wait_for active
+wait_for test -f "$stage/demo-popover-ok"
 test ! -e "$cache"
 
 install -m 700 -- "$(dirname -- "$script")/../linux/tests/fake-codex.mjs" "$fake.mjs"
@@ -98,6 +100,7 @@ ln -s -- "$fake.mjs" "$fake"
 gsettings --schemadir "$installed/schemas" set "$schema" codex-path "$fake"
 gsettings --schemadir "$installed/schemas" set "$schema" demo-mode false
 wait_for valid_cache
+wait_for test -f "$stage/live-popover-ok"
 pid=$(helper_pid)
 kill -TERM "$pid"
 wait_for helper_stopped "$pid"
@@ -120,4 +123,4 @@ if gsettings get org.gnome.shell enabled-extensions | grep -Fq "'$uuid'"; then
     exit 1
 fi
 wait_for helper_stopped "$pid"
-printf 'GNOME Shell install, demo, live bridge, restart, upgrade, and uninstall passed.\n'
+printf 'GNOME Shell install, popover, demo, live bridge, restart, upgrade, and uninstall passed.\n'

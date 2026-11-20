@@ -1,0 +1,110 @@
+.codex-usage-indicator {
+    spacing: 0.75em;
+}
+
+.codex-usage-meter {
+    spacing: 0.4em;
+}
+
+.codex-usage-ring {
+    width: 1em;
+    height: 1em;
+}
+
+.codex-usage-stale StLabel {
+    color: #b0b0b0;
+}
+
+/* GNOME uses its disabled-action text color for noninteractive menu items. */
+.popup-menu-item.codex-usage-static:insensitive {
+    color: inherit !important;
+}
+
+.codex-usage-scroll {
+    max-height: 22em;
+}
+
+.codex-usage-details {
+    spacing: 0.75em;
+    min-width: 21em;
+}
+
+.codex-usage-heading-group {
+    spacing: 0.25em;
+}
+
+.codex-usage-title-row,
+.codex-usage-quota-heading,
+.codex-usage-timing {
+    spacing: 0.65em;
+}
+
+.codex-usage-heading {
+    font-size: 1.25em;
+    font-weight: 700;
+}
+
+.codex-usage-bucket {
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+.codex-usage-secondary,
+.codex-usage-countdown {
+    font-size: 0.9em;
+}
+
+.codex-usage-countdown {
+    font-weight: 600;
+}
+
+.codex-usage-demo-badge {
+    border: 1px solid rgba(128, 128, 128, 0.50);
+    border-radius: 999px;
+    padding: 0.15em 0.6em;
+    font-size: 0.8em;
+    font-weight: 700;
+}
+
+.codex-usage-quota-section {
+    spacing: 0.55em;
+}
+
+.codex-usage-quota-card {
+    background-color: rgba(128, 128, 128, 0.15);
+    border: 1px solid rgba(128, 128, 128, 0.28);
+    border-radius: 0.65em;
+    padding: 0.65em 0.75em;
+    spacing: 0.45em;
+}
+
+.codex-usage-quota-title,
+.codex-usage-quota-value {
+    font-weight: 700;
+}
+
+.codex-usage-value-unknown {
+    font-size: 0.9em;
+}
+
+.codex-usage-progress {
+    -barlevel-height: 0.5em;
+    -barlevel-background-color: rgba(128, 128, 128, 0.38);
+    -barlevel-active-background-color: #34a788;
+    -barlevel-overdrive-color: #34a788;
+    -barlevel-overdrive-separator-width: 0;
+}
+
+.codex-usage-progress-low {
+    -barlevel-active-background-color: #e5a50a;
+}
+
+.codex-usage-progress-critical {
+    -barlevel-active-background-color: #e35656;
+}
+
+.codex-usage-error {
+    border: 1px solid rgba(227, 86, 86, 0.7);
+    border-radius: 0.5em;
+    padding: 0.45em 0.65em;
+}

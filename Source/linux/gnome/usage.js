@@ -1,10 +1,9 @@
 export function remainingForWindow(snapshot, durationMins) {
-    for (const bucket of snapshot?.buckets ?? []) {
-        const window = bucket.windows.find(item => item.windowDurationMins === durationMins);
-        if (window)
-            return window.remainingPercent ?? null;
-    }
-    return null;
+    const buckets = snapshot?.buckets ?? [];
+    const bucket = buckets.find(item => item.id === 'codex') ??
+        buckets.find(item => item.id === 'unidentified') ??
+        (buckets.length === 1 ? buckets[0] : null);
+    return bucket?.windows.find(window => window.windowDurationMins === durationMins)?.remainingPercent ?? null;
 }
 
 export function isStale(view, now) {
@@ -50,13 +49,13 @@ export function makeDemo(now = Date.now()) {
         snapshot: {
             fetchedAt: new Date(now).toISOString(),
             buckets: [
-                {name: 'Demo General', windows: [
+                {id: 'codex', name: 'Demo General', windows: [
                     {durationLabel: '5-hour window', windowDurationMins: 300,
                         remainingPercent: 52.75, resetsAt: seconds + 7200},
                     {durationLabel: '1 week window', windowDurationMins: 10080,
                         remainingPercent: 84, resetsAt: seconds + 259200},
                 ]},
-                {name: 'Demo Additional', windows: [
+                {id: 'demo-extra', name: 'Demo Additional', windows: [
                     {durationLabel: 'Primary window', windowDurationMins: null,
                         remainingPercent: null, resetsAt: null},
                 ]},

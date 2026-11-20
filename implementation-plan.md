@@ -27,7 +27,7 @@ scope for this migration.
 - [x] Show matching five-hour (`5h`) and weekly (`W`) meters in the GNOME panel.
 - [x] Implement and test the Linux Go helper against the fake Codex
   contract, including cancellation, malformed input, and account changes.
-- [ ] Version the helper connection, bound shutdown, and show `5h` and `W` from
+- [x] Version the helper connection, bound shutdown, and show `5h` and `W` from
   the same primary quota bucket. Keep all buckets in the details menu.
 - [ ] Switch release packaging to Go, remove the Linux-only C# helper, and make
   one per-user install command sufficient when the session supports it. No SDK,

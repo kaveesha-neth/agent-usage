@@ -9,7 +9,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-import {HelperClient} from './helper.js';
+import {HelperClient, IncompatibleHelper} from './helper.js';
 import {countdown, isStale, makeDemo, percent, remainingForWindow, resetLabel} from './usage.js';
 
 const usageDashboard = 'https://chatgpt.com/codex/settings/usage';
@@ -89,6 +89,7 @@ export default class CodexUsageExtension extends Extension {
 
     _switchMode() {
         this._stopHelper();
+        this._failures = 0;
         this._demo = this._settings.get_boolean('demo-mode');
         this._error = null;
         this._render(this._demo ? makeDemo() :
@@ -126,21 +127,32 @@ export default class CodexUsageExtension extends Extension {
 
         this._closing = null;
         this._client = client;
+        const started = Date.now();
+        let incompatible = false;
         this._updateActions();
         try {
             await client.read(message => {
                 if (this._client === client)
                     this._onMessage(message);
             });
-        } catch {
-            // EOF, cancellation, and malformed replies share the same recovery path.
+        } catch (error) {
+            incompatible = error instanceof IncompatibleHelper;
         } finally {
             if (this._client === client) {
                 this._client = null;
                 this._busy = false;
-                this._retryAt = Date.now() + 10_000;
-                this._render({...this._view, connection: 'Disconnected', stale: true,
-                    detail: 'The quota helper stopped. Reconnecting…'});
+                if (incompatible) {
+                    this._render({snapshot: null, connection: 'Update required', stale: false,
+                        detail: 'Reinstall the latest Linux bundle, then log out and back in.'});
+                } else {
+                    if (Date.now() - started >= 60_000)
+                        this._failures = 0;
+                    const delay = Math.min(180_000, 5000 * 2 ** this._failures);
+                    this._failures = Math.min(this._failures + 1, 6);
+                    this._retryAt = Date.now() + delay;
+                    this._render({...this._view, connection: 'Disconnected', stale: true,
+                        detail: 'The quota helper stopped. Reconnecting…'});
+                }
             }
         }
     }
@@ -167,7 +179,7 @@ export default class CodexUsageExtension extends Extension {
         this._showError(null);
         if (this._demo)
             this._render(makeDemo());
-        else if (this._client)
+        else if (this._client?.ready)
             this._send('refresh');
         else
             this._startHelper();
@@ -175,7 +187,7 @@ export default class CodexUsageExtension extends Extension {
 
     async _send(command) {
         const client = this._client;
-        if (!client || (command !== 'refresh' && this._busy))
+        if (!client?.ready || (command !== 'refresh' && this._busy))
             return;
         if (command !== 'refresh') {
             this._busy = true;
@@ -194,7 +206,7 @@ export default class CodexUsageExtension extends Extension {
     }
 
     _updateActions() {
-        const available = Boolean(this._client) && !this._busy;
+        const available = Boolean(this._client?.ready) && !this._busy;
         const signingIn = this._view?.connection === 'Signing in';
         for (const item of [this._signIn, this._cancelSignIn, this._signOut])
             item.actor.visible = !this._demo;

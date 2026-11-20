@@ -25,7 +25,7 @@ scope for this migration.
 - [x] Verify the release archive in an isolated GNOME 50 / Wayland session.
   Exercise install, enable/disable, demo isolation, helper restart, and uninstall.
 - [x] Show matching five-hour (`5h`) and weekly (`W`) meters in the GNOME panel.
-- [ ] Implement and test the Linux Go helper against the existing fake Codex
+- [x] Implement and test the Linux Go helper against the fake Codex
   contract, including cancellation, malformed input, and account changes.
 - [ ] Version the helper connection, bound shutdown, and show `5h` and `W` from
   the same primary quota bucket. Keep all buckets in the details menu.

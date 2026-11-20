@@ -11,9 +11,11 @@ The `Windows-x64/` folder in this local workspace is an installed copy for testi
 
 ## Linux x86-64 release
 
-Run `bash Source/scripts/Build-Linux.sh` on the supported Ubuntu / GNOME desktop.
-The script tests and publishes the helper, packs the extension, and writes
+Run `bash Source/scripts/Build-Linux.sh` on the supported Ubuntu / GNOME desktop
+with Go and Node.js installed. The script tests and builds the native Go helper,
+packs the extension, and writes
 `codex-usage-linux-x64.tar.gz` and `SHA256.txt` to `Source/artifacts/linux-x64/`.
-Verify the checksum, extract the archive into a fresh folder, and follow the
-[Linux install guide](Source/linux/README.md) and [verification checklist](VERIFICATION.md).
+Verify the checksum, then run `bash Source/scripts/Test-Linux-Shell.sh` to test
+the archive in an isolated GNOME session. Follow the [Linux install guide](Source/linux/README.md)
+and [manual verification checklist](VERIFICATION.md) on a regular desktop.
 Attach the archive and its checksum to the release after those checks.

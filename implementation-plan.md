@@ -29,7 +29,7 @@ scope for this migration.
   contract, including cancellation, malformed input, and account changes.
 - [x] Version the helper connection, bound shutdown, and show `5h` and `W` from
   the same primary quota bucket. Keep all buckets in the details menu.
-- [ ] Switch release packaging to Go, remove the Linux-only C# helper, and make
+- [x] Switch release packaging to Go, remove the Linux-only C# helper, and make
   one per-user install command sufficient when the session supports it. No SDK,
   development runtime, or `sudo` should be required on the target desktop.
 - [ ] Test the new archive and install, upgrade, and uninstall in an isolated

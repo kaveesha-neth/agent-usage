@@ -1,8 +1,9 @@
 # Codex Usage for Linux
 
 Codex Usage puts two matching quota rings and percentages in the GNOME top
-bar. `5h` shows the first reported five-hour window and `W` shows the first
-reported weekly window. An unavailable window shows a dash in its own slot.
+bar. `5h` and `W` show the five-hour and weekly windows from the main Codex
+quota bucket. An unavailable window shows a dash; another bucket's quota is
+never substituted for it.
 Click the indicator to see all reported quota windows, local reset times,
 countdowns, and connection status. Stale data is marked in the panel and details.
 
@@ -10,7 +11,8 @@ countdowns, and connection status. Stale data is marked in the panel and details
 
 - Ubuntu 26.04 with GNOME Shell 50 on Wayland, x86-64.
 - The official Codex CLI signed into a managed ChatGPT account for live quota.
-  Demo mode works without the CLI. The release bundles the .NET runtime.
+  Demo mode works without the CLI. The release needs no separate language
+  runtime, development tools, or admin access.
 
 ## Install
 
@@ -18,13 +20,12 @@ Extract `codex-usage-linux-x64.tar.gz`. From the extracted folder, as your
 regular desktop user, run:
 
 ```sh
-bash install.sh
-gnome-extensions enable codex-usage@agent-usage
+./install.sh
 ```
 
-If GNOME hasn't discovered the new extension, log out and back in before
-enabling it. After an upgrade, log out and back in to load the new extension
-code. The enabled extension starts with the GNOME session.
+The installer enables the extension for your user. When GNOME needs to discover
+or reload it, log out and back in as directed. If your session blocks user
+extensions, check the Extensions app. Run the same command to upgrade.
 
 Choose **Preferences** from the top-bar menu or run
 `gnome-extensions prefs codex-usage@agent-usage`. If the CLI is undetected,
@@ -43,7 +44,7 @@ helper and its cache. GNOME stores the demo toggle and CLI path in GSettings.
 
 ## Build and verify
 
-On the target desktop, install the .NET 8 SDK and Node.js in addition to the
+On the build machine, install Go 1.26 or newer and Node.js in addition to the
 GNOME command-line tools (`gnome-extensions`, `gjs`, `glib-compile-schemas`).
 From the repository root:
 
@@ -51,7 +52,7 @@ From the repository root:
 bash Source/scripts/Build-Linux.sh
 ```
 
-The script runs Core and Linux tests, publishes the self-contained helper,
+The script runs Linux tests, builds the precompiled Go helper,
 and writes the archive and `SHA256.txt` to `Source/artifacts/linux-x64/`.
 Run `sha256sum -c SHA256.txt` beside the archive to check the release download.
 The fake-server tests exercise the actual quota transport without a live
@@ -59,12 +60,10 @@ account. See the repository verification record for the live-account checklist.
 
 ## Uninstall
 
-Disable and uninstall the extension, then remove its helper:
+Run from the extracted archive:
 
 ```sh
-gnome-extensions disable codex-usage@agent-usage
-gnome-extensions uninstall codex-usage@agent-usage
-rm -- "${XDG_DATA_HOME:-$HOME/.local/share}/codex-usage-widget/bin/codex-usage-helper"
+./install.sh --uninstall
 ```
 
 GNOME configuration and the quota cache are retained for a future reinstall.

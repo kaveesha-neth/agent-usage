@@ -1,106 +1,86 @@
-# Codex Usage Widget
+# Agent Usage
 
-**See how much Codex quota you have left and when it resets, right from your desktop.**
+**See your remaining Codex quota and reset times on Windows and Linux.**
 
-[Download from GitHub Releases](https://github.com/kaveesha-neth/agent-usage/releases) · [Linux setup](#linux-gnome-extension) · [Windows setup](#windows) · [Privacy](#privacy-and-data)
+[Releases](https://github.com/kaveesha-neth/agent-usage/releases) · [Windows setup](#windows-setup) · [Linux setup](#linux-setup) · [Development](Source/README.md)
 
-## At a glance
+Agent Usage currently supports the official Codex CLI. Both applications appear as **Codex Usage** and reuse your ChatGPT sign-in. They read reported quota without making model requests or estimating message counts.
+
+| Windows | Linux / GNOME |
+| --- | --- |
+| Desktop widget with quota bars, reset times, and countdowns. | Top-bar indicator with five-hour (`5h`) and weekly (`W`) quota rings. |
+| Optional taskbar ring with hover details. | Click for quota bars, reset times, and countdowns. |
+| Portable `CodexUsage.exe`; no separate .NET installation. | Archive with a GNOME extension, prebuilt helper, and per-user installer. |
+| [Windows guide](Source/windows/README.md) | [Linux guide](Source/linux/README.md) |
+
+## Screenshots
+
+### Windows
 
 <p align="center">
-  <img src="docs/images/gnome-top-bar.png" alt="GNOME top-bar indicator with 5h and W quota rings and percentages" width="187"><br>
-  <img src="docs/images/gnome-popover.png" alt="GNOME popover with five-hour and weekly quota bars, reset times, and countdowns" width="346"><br>
-  <em>GNOME extension shown with sample quota data.</em>
+  <img src="docs/images/windows-desktop.png" alt="Windows desktop widget showing quota remaining and reset countdowns" width="346"><br>
+  <img src="docs/images/windows-taskbar.png" alt="Windows taskbar quota ring and percentage" width="240"><br>
+  <img src="docs/images/windows-popover.png" alt="Windows taskbar hover details showing quota windows and reset times" width="312">
 </p>
 
-- **Linux:** See `5h` and `W` quota in the GNOME top bar. Click for progress bars, local reset times, and live countdowns.
-- **Windows:** Keep a desktop widget in view, with an optional taskbar ring and hover details.
-- **Both:** Read reported quota from the official Codex CLI. No model requests, API key, or estimated message counts. Both have a demo mode.
+### Linux / GNOME
 
-## Linux (GNOME extension)
+<p align="center">
+  <img src="docs/images/gnome-top-bar.png" alt="GNOME top-bar indicator with five-hour and weekly quota rings" width="187"><br>
+  <img src="docs/images/gnome-popover.png" alt="GNOME popover with quota bars, reset times, and countdowns" width="346"><br>
+  <em>GNOME screenshots use sample quota data.</em>
+</p>
 
-**Supported desktop:** Ubuntu 26.04, GNOME Shell 50 on Wayland, x86‑64. The release includes the extension and its helper. You don't need `sudo`, Go, .NET, or other development tools to install it.
+## Windows setup
 
-### Install or upgrade
+**Requirements:** Windows 10 or 11, x64. For live data, install the official [Codex CLI](https://developers.openai.com/codex/cli) and sign in with a ChatGPT account. API-key billing does not provide the subscription quota shown here.
 
-Download `codex-usage-linux-x64.tar.gz` from the [GitHub Releases page](https://github.com/kaveesha-neth/agent-usage/releases) (not the automatically generated source archive). Open a terminal in the download folder and run these commands as your regular desktop user:
+1. Download [CodexUsage.exe](https://github.com/kaveesha-neth/agent-usage/releases/latest/download/CodexUsage.exe) and save it in a permanent folder.
+2. Run `CodexUsage.exe`. It is a portable, self-contained application; no installer or separate .NET runtime is needed. The executable is unsigned.
+3. If sign-in is needed, open the tray icon and choose **Sign in with ChatGPT**. If Codex is not detected, open **Settings**, browse to the native `codex.exe`, save, quit from the tray, and relaunch.
+4. Drag the desktop widget into position. Enable **Taskbar widget** in Settings if you also want the taskbar ring and hover details.
 
-```sh
-tar -xzf codex-usage-linux-x64.tar.gz
-cd codex-usage-linux-x64
-./install.sh
-```
+The Windows executable link is the intended release asset address. It will work after `CodexUsage.exe` is uploaded; the existing `v1.1.0` release contains Linux only. See [all releases](https://github.com/kaveesha-neth/agent-usage/releases) for available assets.
 
-The installer enables the extension for your user. Log out and back in if prompted, including after an upgrade. If it still doesn't appear, open the GNOME **Extensions** app and turn on **Codex Usage**. To upgrade, extract the newer archive and run the same installer.
-
-### Connect your account or try demo mode
-
-Live quotas require the official [Codex CLI](https://developers.openai.com/codex/cli) signed in with a ChatGPT account, not an API key. If the extension can't find the CLI, open **Preferences** and set the path to its executable. You can also turn on **Demo mode** in **Preferences** to try the extension without the CLI.
-
-### Uninstall
-
-From the extracted `codex-usage-linux-x64` folder (re-extract the archive if needed), run:
-
-```sh
-./install.sh --uninstall
-```
-
-This removes the extension and its helper. It keeps your preferences and quota cache for a future reinstall and does not remove the Codex CLI.
-
-See the [Linux guide](Source/linux/README.md) for build and troubleshooting details.
-
-## Windows
-
-### Requirements
-
-- Windows 10 or 11 on x64. The source also supports a Windows ARM64 build.
-- The official [Codex CLI](https://developers.openai.com/codex/cli) installed and signed in with a managed ChatGPT account. API-key billing does not provide the subscription quota shown here.
-- No separate .NET installation is needed for a self-contained release build. Building from source requires the .NET 8 SDK on Windows.
-
-The Windows executable is unsigned.
-
-### Run the widget
-
-Once a Windows x64 ZIP is published on this project's GitHub **Releases** page, extract the whole ZIP to a permanent folder and run `CodexUsage.exe`. The executable is distributed as a release asset, not committed to the source repository. See [RELEASING.md](RELEASING.md) for packaging details.
-
-The widget uses the Codex CLI's existing managed sign-in. If sign-in is needed, use **Sign in with ChatGPT** from the tray icon. If the CLI is not found, open **Settings**, select the native `codex.exe`, save, quit, and relaunch. A custom npm installation may need that path selected manually; the widget does not run `codex.cmd` or shell scripts.
-
-Drag the desktop widget to position it. Its tray icon provides Settings, refresh, lock, click-through recovery, startup registration, and Quit. Only one widget instance runs per Windows session, so quit before switching between live and demo modes.
-
-### Desktop and taskbar views
-
-The desktop view shows every quota bucket and window returned by the CLI. It displays quota remaining, local reset time, a live countdown, and connection freshness. Values that the service does not return remain unavailable. The bar represents `max(0, 100 - usedPercent)` and is visually clamped to 0–100; it does not invent daily, weekly, or monthly counts.
-
-Enable **Taskbar widget** in Settings to show a ring and percentage on the primary horizontal taskbar **while the desktop view remains visible**. The ring uses the first reported 300-minute window. If none is reported, it shows an empty ring and an unavailable mark. Hover anywhere over the ring, number, or space between them for a detail popover with all returned windows. The popover includes quota remaining, reset times, and ticking countdowns. Right-click the taskbar view to open Settings.
-
-Use **Taskbar offset** to move the overlay left of the notification area and **Taskbar zoom** to scale it from 50% to 200%. These settings save immediately. The overlay does not reserve taskbar space, so other icons can overlap it. Vertical and automatically hidden taskbars are not supported by this placement mode.
-
-The desktop view normally attaches to Explorer's desktop layer so ordinary windows appear above it. This uses undocumented Windows behavior and can vary with Explorer versions, wallpaper tools, and virtual desktops. Settings offers a non-topmost bottom-window fallback. **Recover widget** in the tray menu restores selection and placement if the desktop view becomes inaccessible. The fallback can be hidden by Show Desktop.
-
-### Build and verify from source
-
-From PowerShell on Windows, install the .NET 8 SDK and run:
+To try sample data without Codex, quit the widget and run this from its folder in PowerShell:
 
 ```powershell
-cd Source
-dotnet build .\CodexUsage.sln -c Release
-dotnet run --project .\tests\CodexUsage.Tests -c Release --no-build
-dotnet run --project .\src\CodexUsage.Widget -c Release
+.\CodexUsage.exe --mock
 ```
 
-For an isolated synthetic display, quit the live widget and run:
+See the [Windows guide](Source/windows/README.md) for controls, upgrades, uninstall, troubleshooting, and building from source.
 
-```powershell
-dotnet run --project .\src\CodexUsage.Widget -c Release -- --mock
-```
+## Linux setup
 
-The mock is permanently marked **DEMO**, does not start the app server, and never reads or writes the live usage cache. To publish a self-contained single-file Windows build after the checks, run `.\scripts\Build.ps1` from `Source`. Use `.\scripts\Build.ps1 -Runtime win-arm64` for ARM64. The output is in `Source/artifacts/<runtime>/` and is ignored by Git. The tests are a standalone assertion runner; `dotnet test` is not its verification command.
+**Requirements:** Ubuntu 26.04, GNOME Shell 50 on Wayland, x86-64. For live data, install the official [Codex CLI](https://developers.openai.com/codex/cli) and sign in with a ChatGPT account. API-key billing does not provide the subscription quota shown here.
 
-`Source/schemas/` is a checked-in protocol snapshot generated from Codex CLI 0.159.2. To compare your installed CLI's schema without signing in, run `.\scripts\Verify-CodexSchema.ps1` from `Source`; its default `schemas-local/` output is ignored. Review protocol changes before changing the quota adapter. See [VERIFICATION.md](VERIFICATION.md) for completed checks and the remaining manual Windows checklist.
+1. Download [codex-usage-linux-x64.tar.gz](https://github.com/kaveesha-neth/agent-usage/releases/latest/download/codex-usage-linux-x64.tar.gz), rather than GitHub's automatically generated source archive.
+2. Open a terminal in the download folder and run these commands as your regular desktop user:
+
+   ```sh
+   tar -xzf codex-usage-linux-x64.tar.gz
+   cd codex-usage-linux-x64
+   ./install.sh
+   ```
+
+3. Log out and back in if prompted. If the indicator is missing, open GNOME **Extensions** and enable **Codex Usage**.
+4. If Codex is not detected, open the indicator's **Preferences** and set its executable path. To try sample data without Codex, enable **Demo mode** there.
+
+The archive includes the GNOME extension and its prebuilt Go helper. Installation needs no `sudo`, Go, .NET, Node.js, or development tools.
+
+See the [Linux guide](Source/linux/README.md) for controls, upgrades, uninstall, troubleshooting, and building from source.
 
 ## Privacy and data
 
-The widget uses the CLI's managed account through its local app-server process. It reads account and rate-limit data; sign-in, cancel sign-in, and sign-out run only when you select those actions. Sign-out affects the shared CLI session. The transport blocks model turns, reset-credit consumption, purchases, API-key login, and email actions. The official usage dashboard opens only when selected; the widget does not scrape it.
+Both applications read account and rate-limit data through the CLI's local app-server process. Sign-in, cancellation, and sign-out run only when selected. **Sign-out affects the shared Codex CLI session.** The transports block model turns, purchases, reset-credit consumption, API-key login, and email actions. The official usage dashboard opens only when selected; it is not scraped.
 
-The local cache contains quota fields, a fetch time, and a one-way account fingerprint, not credentials or raw account payloads. Windows stores settings and cache in `%LOCALAPPDATA%\CodexUsageWidget`. Linux stores settings in GNOME and the cache under `$XDG_CACHE_HOME/codex-usage-widget` (default: `~/.cache/codex-usage-widget`).
+Local quota caches contain sanitized quota fields, a fetch time, and a one-way account fingerprint, rather than credentials or raw account payloads. Demo mode does not start the quota connection or read or write the live quota cache. Platform guides document storage locations and removal.
 
-This is an unofficial project. It is not made or endorsed by OpenAI. See the [license](LICENSE) and [third-party notices](Notices/).
+This is an unofficial project, not made or endorsed by OpenAI. See the [license](LICENSE), [.NET notices](Notices/), and the Go notices included in the Linux archive.
+
+## Project documentation
+
+- [Source layout and development](Source/README.md)
+- [Release preparation](RELEASING.md)
+- [Verification records](VERIFICATION.md)
+- [Screenshot filenames and locations](docs/images/README.md)

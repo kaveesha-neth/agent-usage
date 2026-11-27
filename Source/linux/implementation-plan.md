@@ -1,4 +1,6 @@
-# Linux implementation plan
+# Linux implementation history
+
+This historical checklist records the Linux migration, including the earlier C# helper that was later replaced by Go. For current architecture and setup, use the [Linux guide](README.md); for outstanding release checks, use the [verification record](VERIFICATION.md).
 
 The first release targets Ubuntu 26.04 / GNOME Shell 50 on Wayland, x86-64.
 The top bar is the Linux equivalent of the Windows taskbar indicator. Keep a

@@ -1,21 +1,20 @@
-# Preparing a GitHub release
+# Preparing releases
 
-The GitHub repository should contain the source and documentation. Do not add `Windows-x64/`, `Source/artifacts/`, the local NuGet feed, or build output to a commit. The current Windows executable is about 162 MB, above [GitHub's 100 MiB limit for ordinary repository files](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github). GitHub [Releases can carry binary assets](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+Publish binaries at [kaveesha-neth/agent-usage Releases](https://github.com/kaveesha-neth/agent-usage/releases). Keep the repository focused on source, documentation, and screenshots. Build output, restore caches, user data, and the local `Windows-x64/` installation do not belong in commits.
 
-1. On Windows with the .NET 8 SDK, run `Source/scripts/Build.ps1`. This builds the solution, runs the 34-check runner, and publishes a self-contained single-file executable to `Source/artifacts/win-x64/`. Use `-Runtime win-arm64` only for an ARM64 release built and checked for that target.
-2. Make a fresh release ZIP containing `CodexUsage.exe`, the root `README.md` and `LICENSE`, the `Notices/` directory, and a `SHA256.txt` generated from the **same executable in the ZIP**. Do not include `CodexUsage.previous.exe`, caches, symbols, or user preferences.
-3. Extract the ZIP on a separate Windows machine or folder and run the widget. Check the desktop and taskbar views, hover details, zoom, and tray recovery against [VERIFICATION.md](VERIFICATION.md).
-4. Attach the ZIP to a GitHub Release. Put platform, architecture, version, prerequisite Codex CLI, and any known limitations in the release notes.
+| Platform | Main download | Preparation and checks |
+| --- | --- | --- |
+| Windows x64 | `CodexUsage.exe` | [Windows release guide](Source/windows/RELEASING.md) |
+| Linux x86-64 / GNOME | `codex-usage-linux-x64.tar.gz` | [Linux release guide](Source/linux/RELEASING.md) |
 
-The `Windows-x64/` folder in this local workspace is an installed copy for testing. It is intentionally ignored by Git; future source checkouts should build locally or download a release asset.
+Windows uses a direct, self-contained executable. Linux keeps its existing archive and per-user installer. Do not rename the Linux asset or bundle directory without updating its build, installer, tests, and documentation.
 
-## Linux x86-64 release
+## Shared release checklist
 
-Run `bash Source/scripts/Build-Linux.sh` on the supported Ubuntu / GNOME desktop
-with Go and Node.js installed. The script tests and builds the native Go helper,
-packs the extension, and writes
-`codex-usage-linux-x64.tar.gz` and `SHA256.txt` to `Source/artifacts/linux-x64/`.
-Verify the checksum, then run `bash Source/scripts/Test-Linux-Shell.sh` to test
-the archive in an isolated GNOME session. Follow the [Linux install guide](Source/linux/README.md)
-and [manual verification checklist](VERIFICATION.md) on a regular desktop.
-Attach the archive and its checksum to the release after those checks.
+1. Follow each platform's release guide and record checks in its verification file.
+2. State the source commit, release version, tested OS and architecture, Codex CLI version, prerequisites, and known limitations in release notes. Distinguish unchanged platforms from newly tested ones.
+3. Upload main downloads, platform-specific checksums, and applicable license/notices files. Prefix accompanying Windows assets with `windows-x64-` and the Linux checksum with `linux-x64-` to avoid name collisions.
+4. Check the README's download links after publishing. They use `/releases/latest/download/`, so the latest stable release must include both documented main assets. If one platform is unchanged, retain its tested asset with its provenance stated, or change documentation to an actual version-specific asset URL before publishing a platform-only release.
+5. Confirm platform guides, screenshots, release notes, and the [verification index](VERIFICATION.md) describe shipped behavior.
+
+The existing `v1.1.0` release contains Linux only. The Windows download address becomes available when `CodexUsage.exe` is uploaded to the latest stable release. Documentation changes do not publish assets.
